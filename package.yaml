@@ -1,0 +1,42 @@
+name: reactamole
+version: 0.1
+synopsis: A DSL for molecular programming using CRNs and FRP
+# description: See README at <https://github.com/sol/hpack#readme>
+# maintainer: Simon Hengel <sol@typeful.net>
+# github: sol/hpack
+# category: Development
+# extra-source-files:
+#   - CHANGELOG.md
+
+ghc-options: -Wall
+
+default-extensions:
+  - GADTs
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - Bio.Reactamole
+    - Bio.Reactamole.Core
+    - Bio.Reactamole.Bool
+    - Bio.Reactamole.Arr
+    - Bio.Reactamole.Real
+    - Bio.Reactamole.Matlab
+    - Bio.Reactamole.Export
+    - Bio.Reactamole.ArrChoice
+  dependencies:
+    - base
+    - containers
+    - mtl
+    - process
+    - text
+
+tests:
+  reactamole-test:
+    main:        Main.hs
+    source-dirs: test
+    dependencies:
+    - base
+    - reactamole
+    - tasty
+    - tasty-hunit
