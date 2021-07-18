@@ -1,10 +1,12 @@
 name: reactamole
 version: 0.1
-synopsis: A DSL for molecular programming using CRNs and FRP
-# description: See README at <https://github.com/sol/hpack#readme>
+synopsis: Functional Reactive Molecular Programming
+description: Domain-specific language for molecular programming. Reactamole uses Functional Reactive Programming (FRP) arrow combinators for manipulation and composition of Chemical Reaction Networks (CRNs).
+# See README at <https://github.com/digMP/haskell-reactamole#readme>
 # maintainer: Simon Hengel <sol@typeful.net>
-# github: sol/hpack
-# category: Development
+# homepage: https://github.com/digMP/haskell-reactamole#readme
+# github: digMP/haskell-reactamole
+# category: Bio, Reactivity, FRP, Molecular Programming, Chemistry, Embedded
 # extra-source-files:
 #   - CHANGELOG.md
 
