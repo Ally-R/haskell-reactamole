@@ -88,8 +88,8 @@ type Variable = Int
 
 -- | Term of an ODE.
 --
--- For example, @Term 5 [1, 1, 2, 1]@ represents \( \frac{dx}{dt} = 5x^3y \), where
--- \( x \) is represented by 'Variable' @1@ and \( y \) by 'Variable' @2@.
+-- For example, @Term 5 [1, 1, 2, 1]@ represents \( \frac{dx}{dt} = 5x^3y \),
+-- where \( x \) is represented by 'Variable' @1@ and \( y \) by 'Variable' @2@.
 data Term = Term { coef :: Double -- ^Coefficient
                  , vars :: [Variable] -- ^Variables
                  }
@@ -114,8 +114,8 @@ varTally vs = [(x, sum [1 | y <- vs, y == x]) | x <- nub vs]
 -- | Ordinary differential equation (ODE).
 --
 -- For example, @Equation [('Term' 3 [1, 2]), ('Term' -1 [1, 1, 3])]@ represents
--- /dx\/dt = +3*x*y -x*x*z/, where /x/ is represented by 'Vairable' @1@, /y/ by
--- 'Variable' @2@, and /z/ by 'Variable' @3@.
+-- \( dx\/dt = +3*x*y -x*x*z \), where \( x \) is represented by 'Vairable' @1@,
+-- \( y \) by 'Variable' @2@, and \( z \) by 'Variable' @3@.
 type Equation = [Term]
 
 -- | Turn a polynomial equation into a human readable form.

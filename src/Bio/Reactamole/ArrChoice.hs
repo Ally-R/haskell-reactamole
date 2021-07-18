@@ -81,8 +81,8 @@ mergeBool = arrSp (\(CondS x y z) ->
 -- | Merge a conditional real signal.
 --
 -- If the conditional input signal is "@if x then y else z@", then the merged
--- real has solution /w = x*y + (1-x)*z/ where the Bool /x/ is interpreted as
--- a real-value that is @1@ when True and @0@ when False.
+-- real has solution \( w = x*y + (1-x)*z \) where the Bool \( x \) is
+-- interpreted as a real-value that is @1@ when True and @0@ when False.
 --
 -- __NOTE__: Since Bools are only approximately 0- or 1-valued, the merged
 --           real signal is also only approximately equal to @y@ and @z@.
