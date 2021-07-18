@@ -39,7 +39,7 @@ import Bio.Reactamole.ArrChoice
 
 -- | SF for the sine function.
 sinSF :: SF a Double
-sinSF = loop $ sndSF >>> negateSF >>> integrate 1 >>> integrate 0 >>> dupSF
+sinSF = loop $ proj2 >>> negateSF >>> integrate 1 >>> integrate 0 >>> dupSF
 
 -- | Multiply a 'Signal' by the given constant.
 constMult :: Double -> SF Double Double
@@ -77,7 +77,7 @@ bandPass a b c = loop (first (constMult a)
 
 -- | Generate a sine wave with the given frequency.
 carrier :: Double -> SF a Double
-carrier w = loop (sndSF >>> constMult w >>> integrate 1
+carrier w = loop (proj2 >>> constMult w >>> integrate 1
         >>> constMult (-w) >>> integrate 0
         >>> dupSF)
 
@@ -93,10 +93,10 @@ demodulate :: Double -> Double -> SF Double Double
 demodulate w q = bandPass (w/q) (w/q) (w*w) >>> rectify >>> lowPass w w
 
 -- expSF :: SF a Double
--- expSF = loop (sndSF >>> intSF >>> dupSF)
+-- expSF = loop (proj2 >>> intSF >>> dupSF)
 
 -- tanh :: SF a Double
--- tanh = loop (sndSF >>> square >>> negateSF >>> plusOne >>> intSF >>> dupSF)
+-- tanh = loop (proj2 >>> square >>> negateSF >>> plusOne >>> intSF >>> dupSF)
 --   where square = dupSF >>> multSF
 --         plusOne = constRl 1 &&& idSF >>> addSF
 

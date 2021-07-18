@@ -19,8 +19,8 @@ module Bio.Reactamole.Core
 
     -- ** Basic SFs
   , idSF
-  , fstSF --__TO_DO:__ Change to proj1
-  , sndSF --__TO_DO:__ Change to proj2
+  , proj1
+  , proj2
   , constSF
   , dupSF
 
@@ -311,12 +311,12 @@ arrSp :: (Species a -> Species b) -> SF a b
 arrSp f = SF $ \(Sg sp sys ic) -> Sg (f sp) sys ic
 
 -- | Extract the first element of a signal.
-fstSF :: SF (a, b) a --__TO_DO:__ Change to proj1
-fstSF = arrSp $ \(PairS x _) -> x
+proj1 :: SF (a, b) a
+proj1 = arrSp $ \(PairS x _) -> x
 
 -- | Extract the second element of a signal.
-sndSF :: SF (a, b) b --__TO_DO:__ Change to proj2
-sndSF = arrSp $ \(PairS _ y) -> y
+proj2 :: SF (a, b) b
+proj2 = arrSp $ \(PairS _ y) -> y
 
 --------------------------------------------------------------------------------
 

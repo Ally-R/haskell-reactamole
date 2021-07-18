@@ -56,9 +56,9 @@ f >>> g = g <<< f
 (***) :: SF a b -> SF a' b' -> SF (a, a') (b, b')
 (SF f) *** (SF g) = SF $ \s@(Sg _ sys ic) ->
   let n = length sys
-      (Sg spf sysf icf) = (dropSg n . f . runSF fstSF) s
+      (Sg spf sysf icf) = (dropSg n . f . runSF proj1) s
       k = length sysf
-      (Sg spg sysg icg) = (shiftSg n k . dropSg n . g . runSF sndSF) s
+      (Sg spg sysg icg) = (shiftSg n k . dropSg n . g . runSF proj2) s
     in Sg (PairS spf spg) (sys ++ sysf ++ sysg) (ic ++ icf ++ icg)
 
 -- | Fanout: send the input to both argument arrows and combine their output.
