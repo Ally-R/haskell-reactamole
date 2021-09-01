@@ -1,11 +1,7 @@
 -- |
 -- Module      :  Bio.Reactamole.Examples
--- Copyright   :  (c) TBD
--- License     :  TBD
---
--- Maintainer  :  TBD
--- Stability   :  TBD
--- Portability :  TBD
+-- Copyright   :  (c) DigMP Research Group 2021
+-- License     :  MIT
 --
 -- Examples of uses for Reactamole.
 --
@@ -15,15 +11,15 @@
 --    September 2021.
 
 module Bio.Reactamole.Examples
-  ( -- * Example SFs
-    sinSF
+  ( -- * Example CRNs
+    sinCRN
   , lowPass
   , bandPass
   , modulate
   , demodulate
   , srLatch
   , clock
-  , unanimousSF
+  , unanimousCRN
 
     -- * Helpers
   , constMult
@@ -37,102 +33,102 @@ module Bio.Reactamole.Examples
 import Bio.Reactamole
 import Bio.Reactamole.ArrChoice
 
--- | SF for the sine function.
-sinSF :: SF a Double
-sinSF = loop $ proj2 >>> negateSF >>> integrate 1 >>> integrate 0 >>> dupSF
+-- | CRN for the sine function.
+sinCRN :: CRN a Double
+sinCRN = loop $ proj2 >>> negateCRN >>> integrate 1 >>> integrate 0 >>> dupCRN
 
 -- | Multiply a 'Signal' by the given constant.
-constMult :: Double -> SF Double Double
-constMult d = constRl d &&& idSF >>> multSF
+constMult :: Double -> CRN Double Double
+constMult d = constRl d &&& idCRN >>> multCRN
 
--- lowPass1 :: SF Double Double
--- lowPass1 = loop (second negateSF >>> addSF >>> intSF >>> dupSF)
+-- lowPass1 :: CRN Double Double
+-- lowPass1 = loop (second negateCRN >>> addCRN >>> intCRN >>> dupCRN)
 
 -- | A lowpass filter.
-lowPass :: Double -> Double -> SF Double Double
-lowPass a b = loop (constMult a *** constMult (-b) >>> addSF >>> integrate 0 >>> dupSF)
+lowPass :: Double -> Double -> CRN Double Double
+lowPass a b = loop (constMult a *** constMult (-b) >>> addCRN >>> integrate 0 >>> dupCRN)
 
 
--- lowPass2 :: Double -> Double -> SF Double Double
--- lowPass2 k w = loop (constMult k *** constMult (-w) >>> addSF >>> intSF >>> dupSF)
+-- lowPass2 :: Double -> Double -> CRN Double Double
+-- lowPass2 k w = loop (constMult k *** constMult (-w) >>> addCRN >>> intCRN >>> dupCRN)
 
--- bandPass1 :: SF Double Double
--- bandPass1 = loop (second (negateSF &&& intSF >>> addSF) >>> addSF >>> intSF >>> dupSF)
+-- bandPass1 :: CRN Double Double
+-- bandPass1 = loop (second (negateCRN &&& intCRN >>> addCRN) >>> addCRN >>> intCRN >>> dupCRN)
 
--- bandPass2 :: Double -> Double -> Double -> SF Double Double
+-- bandPass2 :: Double -> Double -> Double -> CRN Double Double
 -- bandPass2 k q w =
---   loop (second (negateSF &&& intSF >>> (constMult w *** constMult q >>> addSF))
---         >>> first (constMult k) >>> addSF >>> intSF >>> dupSF)
+--   loop (second (negateCRN &&& intCRN >>> (constMult w *** constMult q >>> addCRN))
+--         >>> first (constMult k) >>> addCRN >>> intCRN >>> dupCRN)
 
--- bandPass3 :: Double -> Double -> Double -> SF Double Double
+-- bandPass3 :: Double -> Double -> Double -> CRN Double Double
 -- bandPass3 k q w = loop (first (constMult k)
---   >>> second (constMult (-w) &&& (intSF >>> constMult q) >>> addSF)
---   >>> addSF >>> intSF >>> dupSF)
+--   >>> second (constMult (-w) &&& (intCRN >>> constMult q) >>> addCRN)
+--   >>> addCRN >>> intCRN >>> dupCRN)
 
 -- | A bandpass filter.
-bandPass :: Double -> Double -> Double -> SF Double Double
+bandPass :: Double -> Double -> Double -> CRN Double Double
 bandPass a b c = loop (first (constMult a)
-  >>> second (constMult (-c) &&& (integrate 0 >>> constMult (-b)) >>> addSF)
-  >>> addSF >>> integrate 0 >>> dupSF)
+  >>> second (constMult (-c) &&& (integrate 0 >>> constMult (-b)) >>> addCRN)
+  >>> addCRN >>> integrate 0 >>> dupCRN)
 
 -- | Generate a sine wave with the given frequency.
-carrier :: Double -> SF a Double
+carrier :: Double -> CRN a Double
 carrier w = loop (proj2 >>> constMult w >>> integrate 1
         >>> constMult (-w) >>> integrate 0
-        >>> dupSF)
+        >>> dupCRN)
 
 -- | Produce a pair @m(t)@ that satisfies
 -- \( \frac{dm}{dt} = u(t)\cdot\sin(ft) - m(t) \).
-modulate :: Double -> SF Double Double
-modulate w = loop (first (idSF &&& carrier w >>> multSF)
-  >>> second negateSF >>> addSF >>> integrate 0 >>> dupSF)
+modulate :: Double -> CRN Double Double
+modulate w = loop (first (idCRN &&& carrier w >>> multCRN)
+  >>> second negateCRN >>> addCRN >>> integrate 0 >>> dupCRN)
 
 -- | Demodulate a signal that has been modulated on a carrier signal at
 -- frequency @w@.
-demodulate :: Double -> Double -> SF Double Double
+demodulate :: Double -> Double -> CRN Double Double
 demodulate w q = bandPass (w/q) (w/q) (w*w) >>> rectify >>> lowPass w w
 
--- expSF :: SF a Double
--- expSF = loop (proj2 >>> intSF >>> dupSF)
+-- expCRN :: CRN a Double
+-- expCRN = loop (proj2 >>> intCRN >>> dupCRN)
 
--- tanh :: SF a Double
--- tanh = loop (proj2 >>> square >>> negateSF >>> plusOne >>> intSF >>> dupSF)
---   where square = dupSF >>> multSF
---         plusOne = constRl 1 &&& idSF >>> addSF
+-- tanh :: CRN a Double
+-- tanh = loop (proj2 >>> square >>> negateCRN >>> plusOne >>> intCRN >>> dupCRN)
+--   where square = dupCRN >>> multCRN
+--         plusOne = constRl 1 &&& idCRN >>> addCRN
 
--- bandPass4 :: Double -> Double -> Double -> SF Double Double
+-- bandPass4 :: Double -> Double -> Double -> CRN Double Double
 -- bandPass4 a b c =
 --   loop
 --     ( first (constMult a)
---         >>> second (constMult (- c) &&& (intSF >>> constMult (- b)) >>> addSF)
---         >>> addSF
---         >>> intSF
---         >>> dupSF
+--         >>> second (constMult (- c) &&& (intCRN >>> constMult (- b)) >>> addCRN)
+--         >>> addCRN
+--         >>> intCRN
+--         >>> dupCRN
 --     )
 
-rectify :: SF Double Double
-rectify = isPos &&& dupSF >>> entangle >>> (idSF ||| constRl 0)
+rectify :: CRN Double Double
+rectify = isPos &&& dupCRN >>> entangle >>> (idCRN ||| constRl 0)
 
 -- | Determine if input double is positive.
-isPos :: SF Double Bool
-isPos = posSF
+isPos :: CRN Double Bool
+isPos = posCRN
 
--- boolClock :: Double -> SF () Bool
+-- boolClock :: Double -> CRN () Bool
 -- boolClock t = sin  >>> isPos
 
 --------------------------------------------------------------------------------
 
--- | An SR latch SF.
-srLatch :: SF (Bool, Bool) (Bool, Bool)
+-- | An SR latch CRN.
+srLatch :: CRN (Bool, Bool) (Bool, Bool)
 srLatch = loop $
   arrSp (\(PairS (PairS s' r') (PairS q q'))
          -> PairS (PairS s' q') (PairS r' q))
-  >>> (nandSF *** nandSF)
-  >>> dupSF
+  >>> (nandCRN *** nandCRN)
+  >>> dupCRN
 
--- | A clock SF.
-clock :: SF a Bool
-clock = sinSF >>> isPos
+-- | A clock CRN.
+clock :: CRN a Bool
+clock = sinCRN >>> isPos
 
 -- | A Haskell function to determine if three inputs are the same.
 --
@@ -140,8 +136,8 @@ clock = sinSF >>> isPos
 unanimous :: Bool -> Bool -> Bool -> Bool
 unanimous x y z = if x then y && z else not (y || z)
 
--- | An SF to determine if three inputs are the same.
+-- | An CRN to determine if three inputs are the same.
 --
 -- Demonstrates the use of arr3Bl.
-unanimousSF :: SF (Bool, Bool, Bool) Bool
-unanimousSF = arr3Bl unanimous
+unanimousCRN :: CRN (Bool, Bool, Bool) Bool
+unanimousCRN = arr3Bl unanimous

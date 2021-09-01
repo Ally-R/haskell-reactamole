@@ -1,11 +1,7 @@
 -- |
 -- Module      :  Bio.Reactamole
--- Copyright   :  (c) TBD
--- License     :  TBD
---
--- Maintainer  :  TBD
--- Stability   :  TBD
--- Portability :  TBD
+-- Copyright   :  (c) DigMP Research Group 2021
+-- License     :  MIT
 --
 -- Reactamole is a functional reactive molecular programming language
 -- for generating and manipulating chemical reaction networks (CRNs).

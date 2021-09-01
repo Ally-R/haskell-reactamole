@@ -1,11 +1,7 @@
 -- |
 -- Module      :  Bio.Reactamole.Bool
--- Copyright   :  (c) TBD
--- License     :  TBD
---
--- Maintainer  :  TBD
--- Stability   :  TBD
--- Portability :  TBD
+-- Copyright   :  (c) DigMP Research Group 2021
+-- License     :  MIT
 --
 -- Tools for Bools: Functions for lifting and manipulating Bools in
 -- Reactamole.
@@ -19,15 +15,15 @@ module Bio.Reactamole.Bool
     constBl
 
     -- ** Logic Gates
-  , notSF
-  , nandSF
-  , andSF
-  , orSF
-  , norSF
-  , xorSF
-  , xnorSF
+  , notCRN
+  , nandCRN
+  , andCRN
+  , orCRN
+  , norCRN
+  , xorCRN
+  , xnorCRN
 
-    -- ** Lift SFs
+    -- ** Lift CRNs
   , arr1Bl
   , arr2Bl
   , arr3Bl
@@ -41,25 +37,25 @@ module Bio.Reactamole.Bool
 import Bio.Reactamole.Arr
 import Bio.Reactamole.Core
 
--- | SF that produces True (/'instantiate'd/) constantly.
-constBl :: Bool -> SF a Bool
-constBl b = constSF (Sg b' [] [])
+-- | CRN that produces True (/'instantiate'd/) constantly.
+constBl :: Bool -> CRN a Bool
+constBl b = constCRN (Sg b' [] [])
   where b' = if b then TrueS else FalseS
 
 --------------------------------------------------------------------------------
 
--- | SF for logical NOT.
-notSF :: SF Bool Bool
-notSF = arrSp $ \sp -> case sp of
+-- | CRN for logical NOT.
+notCRN :: CRN Bool Bool
+notCRN = arrSp $ \sp -> case sp of
   TrueS     -> FalseS
   FalseS    -> TrueS
   BoolS x y -> BoolS y x
 
 --------------------------------------------------------------------------------
 
--- | SF for logical NAND.
-nandSF :: SF (Bool, Bool) Bool
-nandSF = SF $ \(Sg sp sys ic) -> case sp of
+-- | CRN for logical NAND.
+nandCRN :: CRN (Bool, Bool) Bool
+nandCRN = CRN $ \(Sg sp sys ic) -> case sp of
   PairS TrueS  TrueS  -> Sg FalseS [] []
   PairS FalseS _      -> Sg TrueS [] []
   PairS _      FalseS -> Sg TrueS [] []
@@ -78,115 +74,115 @@ nandSF = SF $ \(Sg sp sys ic) -> case sp of
 
 --------------------------------------------------------------------------------
 
--- | SF for logical AND.
-andSF :: SF (Bool, Bool) Bool
-andSF = nandSF >>> notSF
+-- | CRN for logical AND.
+andCRN :: CRN (Bool, Bool) Bool
+andCRN = nandCRN >>> notCRN
 
--- | SF for logical OR.
-orSF :: SF (Bool, Bool) Bool
-orSF = (notSF *** notSF) >>> nandSF
+-- | CRN for logical OR.
+orCRN :: CRN (Bool, Bool) Bool
+orCRN = (notCRN *** notCRN) >>> nandCRN
 
--- | SF for logical NOR.
-norSF :: SF (Bool, Bool) Bool
-norSF = orSF >>> notSF
+-- | CRN for logical NOR.
+norCRN :: CRN (Bool, Bool) Bool
+norCRN = orCRN >>> notCRN
 
--- | SF for logical XOR.
+-- | CRN for logical XOR.
 --
--- Note that this uses three nandSFs under the hood. All other gates except
--- xnorSF use only one.
-xorSF :: SF (Bool, Bool) Bool
-xorSF = (nandSF &&& orSF) >>> andSF
+-- Note that this uses three nandCRNs under the hood. All other gates except
+-- xnorCRN use only one.
+xorCRN :: CRN (Bool, Bool) Bool
+xorCRN = (nandCRN &&& orCRN) >>> andCRN
 
--- | SF for logical XNOR.
+-- | CRN for logical XNOR.
 --
--- Note that this uses three nandSFs under the hood. All other gates except
--- xorSF use only one.
-xnorSF :: SF (Bool, Bool) Bool
-xnorSF = xorSF >>> notSF
+-- Note that this uses three nandCRNs under the hood. All other gates except
+-- xorCRN use only one.
+xnorCRN :: CRN (Bool, Bool) Bool
+xnorCRN = xorCRN >>> notCRN
 
 --------------------------------------------------------------------------------
 
 -- | Produce either an identical or inverse signal depending on the Boolean.
 --
 -- Lift helper function.
-arrNOT :: Bool -> SF Bool Bool
-arrNOT x = if x then idSF else notSF
+arrNOT :: Bool -> CRN Bool Bool
+arrNOT x = if x then idCRN else notCRN
 
--- | Compile a series of AND and NOT gates into an SF, to be fed into OR gates
+-- | Compile a series of AND and NOT gates into an CRN, to be fed into OR gates
 --  that will simulate a Boolean function.
 --
 -- Lift helper function.
-arrAND :: [Bool] -> Species a -> SF a Bool
+arrAND :: [Bool] -> Species a -> CRN a Bool
 arrAND [] _ = constBl False
 arrAND [x] (BoolS _ _) = arrNOT x
 arrAND [_] _ = error "Species must be a Bool or Tuple of Bools, and no longer than the Bool list"
 arrAND (x:xs) (PairS (BoolS _ _) b@(BoolS _ _)) =
-  andSF <<< (arrNOT x *** arrAND xs b)
+  andCRN <<< (arrNOT x *** arrAND xs b)
 arrAND (x:xs) (Tup3S (BoolS _ _) b@(BoolS _ _) c@(BoolS _ _)) =
-  andSF <<< (arrNOT x *** arrAND xs (PairS b c)) <<< tup3ToPairSF
+  andCRN <<< (arrNOT x *** arrAND xs (PairS b c)) <<< tup3ToPairCRN
 arrAND (x:xs) (Tup4S (BoolS _ _) b@(BoolS _ _) c@(BoolS _ _) d@(BoolS _ _)) =
-  andSF <<< (arrNOT x *** arrAND xs (Tup3S b c d)) <<< tup4ToPairSF
+  andCRN <<< (arrNOT x *** arrAND xs (Tup3S b c d)) <<< tup4ToPairCRN
 arrAND (x:xs) (Tup5S (BoolS _ _)
                b@(BoolS _ _) c@(BoolS _ _) d@(BoolS _ _) e@(BoolS _ _)) =
-  andSF <<< (arrNOT x *** arrAND xs (Tup4S b c d e)) <<< tup5ToPairSF
+  andCRN <<< (arrNOT x *** arrAND xs (Tup4S b c d e)) <<< tup5ToPairCRN
 arrAND (_:_) _ = error "Bool list cannot be longer than Species; Species must be BoolSpecies or a tuple of BoolSpecies"
 
--- | Compile a series of OR, AND, and NOT gates into an SF to simulate a Boolean
+-- | Compile a series of OR, AND, and NOT gates into an CRN to simulate a Boolean
 --  function.
 --
 -- Lift helper function.
-arrOR :: [[Bool]] -> Species a -> SF a Bool
+arrOR :: [[Bool]] -> Species a -> CRN a Bool
 arrOR [] s = arrAND [] s
 arrOR [x] s = arrAND x s
-arrOR (x:xs) s = orSF <<< (arrAND x s *** arrOR xs s) <<< dupSF
+arrOR (x:xs) s = orCRN <<< (arrAND x s *** arrOR xs s) <<< dupCRN
 
 --------------------------------------------------------------------------------
 
--- | Lift a 1-in 1-out Boolean Haskell function into an 'SF'.
-arr1Bl :: (Bool -> Bool) -> SF Bool Bool
-arr1Bl f = SF $ \s@(Sg sp _ _) ->
+-- | Lift a 1-in 1-out Boolean Haskell function into an 'CRN'.
+arr1Bl :: (Bool -> Bool) -> CRN Bool Bool
+arr1Bl f = CRN $ \s@(Sg sp _ _) ->
      let bl = [True, False]
          matrix = [(f x, [x]) | x <- bl]
          mFilt  = map snd . filter ((==True) . fst)
-         SF sg = arrOR (mFilt matrix) sp
+         CRN sg = arrOR (mFilt matrix) sp
      in sg s
 
--- | Lift a 2-in 1-out Boolean Haskell function into an 'SF'.
-arr2Bl :: (Bool -> Bool -> Bool) -> SF (Bool, Bool) Bool
-arr2Bl f = SF $ \s@(Sg sp _ _) ->
+-- | Lift a 2-in 1-out Boolean Haskell function into an 'CRN'.
+arr2Bl :: (Bool -> Bool -> Bool) -> CRN (Bool, Bool) Bool
+arr2Bl f = CRN $ \s@(Sg sp _ _) ->
   let bl = [True, False]
       matrix = [(f x y, [x, y]) | x <- bl, y <- bl]
       mFilt  = map snd . filter ((==True) . fst)
-      SF sg = arrOR (mFilt matrix) sp
+      CRN sg = arrOR (mFilt matrix) sp
   in sg s
 
--- | Lift a 3-in 1-out Boolean Haskell function into an 'SF'.
-arr3Bl :: (Bool -> Bool -> Bool -> Bool) -> SF (Bool, Bool, Bool) Bool
-arr3Bl f = SF $ \s@(Sg sp _ _) ->
+-- | Lift a 3-in 1-out Boolean Haskell function into an 'CRN'.
+arr3Bl :: (Bool -> Bool -> Bool -> Bool) -> CRN (Bool, Bool, Bool) Bool
+arr3Bl f = CRN $ \s@(Sg sp _ _) ->
   let bl = [True, False]
       matrix = [(f x y z, [x, y, z]) | x <- bl, y <- bl, z <- bl]
       mFilt  = map snd . filter ((==True) . fst)
-      SF sg = arrOR (mFilt matrix) sp
+      CRN sg = arrOR (mFilt matrix) sp
   in sg s
       
--- | Lift a 4-in 1-out Boolean Haskell function into an 'SF'.
+-- | Lift a 4-in 1-out Boolean Haskell function into an 'CRN'.
 arr4Bl :: (Bool -> Bool -> Bool -> Bool -> Bool) ->
-          SF (Bool, Bool, Bool, Bool) Bool
-arr4Bl f = SF $ \s@(Sg sp _ _) ->
+          CRN (Bool, Bool, Bool, Bool) Bool
+arr4Bl f = CRN $ \s@(Sg sp _ _) ->
   let bl = [True, False]
       matrix = [(f x y z w, [x, y, z, w]) |
                 x <- bl, y <- bl, z <- bl, w <- bl]
       mFilt  = map snd . filter ((==True) . fst)
-      SF sg = arrOR (mFilt matrix) sp
+      CRN sg = arrOR (mFilt matrix) sp
   in sg s
   
--- | Lift a 5-in 1-out Boolean Haskell function into an 'SF'.
+-- | Lift a 5-in 1-out Boolean Haskell function into an 'CRN'.
 arr5Bl :: (Bool -> Bool -> Bool -> Bool -> Bool -> Bool) ->
-          SF (Bool, Bool, Bool, Bool, Bool) Bool
-arr5Bl f = SF $ \s@(Sg sp _ _) ->
+          CRN (Bool, Bool, Bool, Bool, Bool) Bool
+arr5Bl f = CRN $ \s@(Sg sp _ _) ->
   let bl = [True, False]
       matrix = [(f x y z w v, [x, y, z, w, v]) |
                 x <- bl, y <- bl, z <- bl, w <- bl, v <- bl]
       mFilt  = map snd . filter ((==True) . fst)
-      SF sg = arrOR (mFilt matrix) sp
+      CRN sg = arrOR (mFilt matrix) sp
   in sg s

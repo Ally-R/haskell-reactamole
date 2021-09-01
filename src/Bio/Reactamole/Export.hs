@@ -1,11 +1,7 @@
 -- |
 -- Module      :  Bio.Reactamole.Export
--- Copyright   :  (c) TBD
--- License     :  TBD
---
--- Maintainer  :  TBD
--- Stability   :  TBD
--- Portability :  TBD
+-- Copyright   :  (c) DigMP Research Group 2021
+-- License     :  MIT
 --
 -- A collection of useful functions for cleaning up, printing, and converting
 -- between ODEs and CRNs.
@@ -16,8 +12,8 @@ import Bio.Reactamole.Core
 import Bio.Reactamole.Arr
 import Data.List (delete, groupBy, sort, nub, intercalate)
 
-data IVP a b = IVP (Species a) (Species b) [Equation] [Double]
-data CRN a b = CRN (Species a) (Species b) [Reaction] [Double]
+data IVP a b  = IVP (Species a) (Species b) [Equation] [Double]
+data Rxns a b = Rxns (Species a) (Species b) [Reaction] [Double]
 
 showIn,showOut :: Species a -> String
 showIn sp  = "INPUT:\n  "  ++ show sp ++ "\n"
@@ -45,16 +41,16 @@ instance Show (IVP a b) where
     intercalate "\n" [showIn spa, showOut spb, showSys inputs sys, showICs inputs ic]
     where inputs = varsSp spa
 
-instance Show (CRN a b) where
-  show (CRN spa spb rns ic) =
+instance Show (Rxns a b) where
+  show (Rxns spa spb rns ic) =
     intercalate "\n" [showIn spa, showOut spb, showRns rns, showICs (varsSp spa) ic]
 
 -- | Extract the initial value problem from the signal function.
-toIVP :: HasDefault a => SF a b -> IVP a b
+toIVP :: HasDefault a => CRN a b -> IVP a b
 toIVP f = IVP inSp outSp (map normalizeEq sys) ic
-  where s@(Sg inSp _ _) = runSF instSF (Sg getDefault [] [])
-        f' = f >>> instSF >>> reduceSF
-        Sg outSp sys ic = runSF f' s
+  where s@(Sg inSp _ _) = runCRN instCRN (Sg getDefault [] [])
+        f' = f >>> instCRN >>> reduceCRN
+        Sg outSp sys ic = runCRN f' s
 
 termToRn :: Variable -> Term -> Reaction
 termToRn x (Term c ys) =
@@ -85,6 +81,6 @@ addTallies xs ys = map total (nub (map fst zs))
   where zs = xs ++ ys
         total z = (z,sum (map snd (filter ((==z) . fst) zs)))
 
-toCRN :: HasDefault a => SF a b -> CRN a b
-toCRN f = CRN spa spb (eqsToRns sys) ic
+toRxns :: HasDefault a => CRN a b -> Rxns a b
+toRxns f = Rxns spa spb (eqsToRns sys) ic
   where IVP spa spb sys ic = toIVP f

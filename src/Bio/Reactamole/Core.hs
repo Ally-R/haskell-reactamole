@@ -2,32 +2,28 @@
 
 -- |
 -- Module      :  Bio.Reactamole.Core
--- Copyright   :  (c) TBD
--- License     :  TBD
---
--- Maintainer  :  TBD
--- Stability   :  TBD
--- Portability :  TBD
+-- Copyright   :  (c) DigMP Research Group 2021
+-- License     :  MIT
 --
 -- Core Reactamole language structure based on a representation of chemical
 -- reaction networks (CRNs) as ordinary differential equations (ODEs).
 
 module Bio.Reactamole.Core
   (  -- * Signal Functions
-    SF (..)
-  , reduceSF
+    CRN (..)
+  , reduceCRN
 
-    -- ** Basic SFs
-  , idSF
+    -- ** Basic CRNs
+  , idCRN
   , proj1
   , proj2
-  , constSF
-  , dupSF
+  , constCRN
+  , dupCRN
 
     -- ** Tuple/Pair conversions
-  , tup3ToPairSF
-  , tup4ToPairSF
-  , tup5ToPairSF
+  , tup3ToPairCRN
+  , tup4ToPairCRN
+  , tup5ToPairCRN
 
     -- * Species & Signals
     -- ** Construction
@@ -269,7 +265,7 @@ data Signal a = Sg { species :: Species a  -- ^ /Type/ of the CRN
                    }
 
 -- | A signal function, or CRN transformer.
-newtype SF a b = SF { runSF :: Signal a -> Signal b }
+newtype CRN a b = CRN { runCRN :: Signal a -> Signal b }
 
 instance Show (Signal a) where
   show (Sg sp sys ic) = intercalate "\n" (reverse (map fst eqns)) ++ "\n"
@@ -285,8 +281,8 @@ instance Show (Signal a) where
 --------------------------------------------------------------------------------
 
 -- | Identity: emit the input signal unaltered.
-idSF :: SF a a
-idSF = SF id
+idCRN :: CRN a a
+idCRN = CRN id
 
 -- | The null signal.
 nullSg :: Signal ()
@@ -301,47 +297,47 @@ pairSg (Sg sp1 sys1 ic1) (Sg sp2 sys2 ic2) = Sg sp3 sys3 ic3
     sys3 = sys1 ++ map (shiftEq 0 n) sys2
     ic3  = ic1 ++ ic2
 
--- | Lift a pure species function to an SF.
+-- | Lift a pure species function to an CRN.
 --
 -- You can regard the species function as a "reindexing" the structure of the
 -- species object without actually modifying the underlying system of equations
--- or initial conditions. The resulting SF is really an "adapter" that makes two
--- other SFs compatible.
-arrSp :: (Species a -> Species b) -> SF a b
-arrSp f = SF $ \(Sg sp sys ic) -> Sg (f sp) sys ic
+-- or initial conditions. The resulting CRN is really an "adapter" that makes two
+-- other CRNs compatible.
+arrSp :: (Species a -> Species b) -> CRN a b
+arrSp f = CRN $ \(Sg sp sys ic) -> Sg (f sp) sys ic
 
 -- | Extract the first element of a signal.
-proj1 :: SF (a, b) a
+proj1 :: CRN (a, b) a
 proj1 = arrSp $ \(PairS x _) -> x
 
 -- | Extract the second element of a signal.
-proj2 :: SF (a, b) b
+proj2 :: CRN (a, b) b
 proj2 = arrSp $ \(PairS _ y) -> y
 
 --------------------------------------------------------------------------------
 
--- | Create an SF that ignores its input, producing the constant signal
+-- | Create an CRN that ignores its input, producing the constant signal
 -- s regardless.
-constSF :: Signal a -> SF b a
-constSF s = SF (const s)
+constCRN :: Signal a -> CRN b a
+constCRN s = CRN (const s)
 
 -- | Duplicate: emit a pair of the input signal.
-dupSF :: SF a (a, a)
-dupSF = arrSp $ \x -> PairS x x
+dupCRN :: CRN a (a, a)
+dupCRN = arrSp $ \x -> PairS x x
 
 --------------------------------------------------------------------------------
 
 -- | Convert a 'Tup3S' signal into a 'PairS' signal.
-tup3ToPairSF :: SF (a, b, c) (a, (b, c))
-tup3ToPairSF = arrSp $ \(Tup3S x y z) -> PairS x (PairS y z)
+tup3ToPairCRN :: CRN (a, b, c) (a, (b, c))
+tup3ToPairCRN = arrSp $ \(Tup3S x y z) -> PairS x (PairS y z)
 
 -- | Convert a 'Tup4S' signal into a 'PairS' signal.
-tup4ToPairSF :: SF (a, b, c, d) (a, (b, c, d))
-tup4ToPairSF = arrSp $ \(Tup4S x y z w) -> PairS x (Tup3S y z w)
+tup4ToPairCRN :: CRN (a, b, c, d) (a, (b, c, d))
+tup4ToPairCRN = arrSp $ \(Tup4S x y z w) -> PairS x (Tup3S y z w)
 
 -- | Convert a 'Tup5S' signal into a 'PairS' signal.
-tup5ToPairSF :: SF (a, b, c, d, e) (a, (b, c, d, e))
-tup5ToPairSF = arrSp $ \(Tup5S x y z w u) -> PairS x (Tup4S y z w u)
+tup5ToPairCRN :: CRN (a, b, c, d, e) (a, (b, c, d, e))
+tup5ToPairCRN = arrSp $ \(Tup5S x y z w u) -> PairS x (Tup4S y z w u)
 
 --------------------------------------------------------------------------------
 
@@ -415,8 +411,8 @@ normalizeEq = filter notZero . combineTerms . sort . map sortVars
 --
 -- This is accomplished by finding the smallest "closed sub-CRN" in the
 -- signal that encapsulates all of the variables in the output.
-reduceSF :: SF a a
-reduceSF = SF $ \s@(Sg sp sys _) ->
+reduceCRN :: CRN a a
+reduceCRN = CRN $ \s@(Sg sp sys _) ->
   let n = length sys
       deps = map (\i -> varsEq (sys !! i)) [0..n-1]
       f vs = let vs' = sort . nub $ concat (vs : [ deps !! v | v <- vs])
