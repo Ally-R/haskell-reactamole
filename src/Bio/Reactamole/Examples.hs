@@ -13,6 +13,7 @@
 module Bio.Reactamole.Examples
   ( -- * Example CRNs
     sinCRN
+  , expCRN
   , lowPass
   , bandPass
   , modulate
@@ -26,7 +27,6 @@ module Bio.Reactamole.Examples
   , carrier
   , entangle
   , rectify
-  , isPos
   , unanimous
   ) where
 
@@ -37,33 +37,17 @@ import Bio.Reactamole.ArrChoice
 sinCRN :: CRN a Double
 sinCRN = loop $ proj2 >>> negateCRN >>> integrate 1 >>> integrate 0 >>> dupCRN
 
+-- | CRN for the exponential function.
+expCRN :: CRN a Double
+expCRN = loop (proj2 >>> integrate 1 >>> dupCRN)
+
 -- | Multiply a 'Signal' by the given constant.
 constMult :: Double -> CRN Double Double
 constMult d = constRl d &&& idCRN >>> multCRN
 
--- lowPass1 :: CRN Double Double
--- lowPass1 = loop (second negateCRN >>> addCRN >>> intCRN >>> dupCRN)
-
 -- | A lowpass filter.
 lowPass :: Double -> Double -> CRN Double Double
 lowPass a b = loop (constMult a *** constMult (-b) >>> addCRN >>> integrate 0 >>> dupCRN)
-
-
--- lowPass2 :: Double -> Double -> CRN Double Double
--- lowPass2 k w = loop (constMult k *** constMult (-w) >>> addCRN >>> intCRN >>> dupCRN)
-
--- bandPass1 :: CRN Double Double
--- bandPass1 = loop (second (negateCRN &&& intCRN >>> addCRN) >>> addCRN >>> intCRN >>> dupCRN)
-
--- bandPass2 :: Double -> Double -> Double -> CRN Double Double
--- bandPass2 k q w =
---   loop (second (negateCRN &&& intCRN >>> (constMult w *** constMult q >>> addCRN))
---         >>> first (constMult k) >>> addCRN >>> intCRN >>> dupCRN)
-
--- bandPass3 :: Double -> Double -> Double -> CRN Double Double
--- bandPass3 k q w = loop (first (constMult k)
---   >>> second (constMult (-w) &&& (intCRN >>> constMult q) >>> addCRN)
---   >>> addCRN >>> intCRN >>> dupCRN)
 
 -- | A bandpass filter.
 bandPass :: Double -> Double -> Double -> CRN Double Double
@@ -88,33 +72,9 @@ modulate w = loop (first (idCRN &&& carrier w >>> multCRN)
 demodulate :: Double -> Double -> CRN Double Double
 demodulate w q = bandPass (w/q) (w/q) (w*w) >>> rectify >>> lowPass w w
 
--- expCRN :: CRN a Double
--- expCRN = loop (proj2 >>> intCRN >>> dupCRN)
-
--- tanh :: CRN a Double
--- tanh = loop (proj2 >>> square >>> negateCRN >>> plusOne >>> intCRN >>> dupCRN)
---   where square = dupCRN >>> multCRN
---         plusOne = constRl 1 &&& idCRN >>> addCRN
-
--- bandPass4 :: Double -> Double -> Double -> CRN Double Double
--- bandPass4 a b c =
---   loop
---     ( first (constMult a)
---         >>> second (constMult (- c) &&& (intCRN >>> constMult (- b)) >>> addCRN)
---         >>> addCRN
---         >>> intCRN
---         >>> dupCRN
---     )
-
+-- | Rectifies a signal so that only the positive part goes through
 rectify :: CRN Double Double
-rectify = isPos &&& dupCRN >>> entangle >>> (idCRN ||| constRl 0)
-
--- | Determine if input double is positive.
-isPos :: CRN Double Bool
-isPos = posCRN
-
--- boolClock :: Double -> CRN () Bool
--- boolClock t = sin  >>> isPos
+rectify = posCRN &&& dupCRN >>> entangle >>> (idCRN ||| constRl 0)
 
 --------------------------------------------------------------------------------
 
@@ -128,7 +88,7 @@ srLatch = loop $
 
 -- | A clock CRN.
 clock :: CRN a Bool
-clock = sinCRN >>> isPos
+clock = sinCRN >>> posCRN
 
 -- | A Haskell function to determine if three inputs are the same.
 --

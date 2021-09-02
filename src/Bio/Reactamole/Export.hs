@@ -16,7 +16,14 @@ import Bio.Reactamole.Core
 import Bio.Reactamole.Arr
 import Data.List (delete, groupBy, sort, nub, intercalate)
 
+-- | An (IVP inSp outSp sys ic) object represents a complete initial value
+--   problem where inSp helps interpret the input structure, outSp helps
+--   interpret the output structure, sys represents the list of ODEs of the IVP,
+--   and ic is the list of initial conditions
 data IVP a b  = IVP (Species a) (Species b) [Equation] [Double]
+
+-- | An (Rxns inSp outSp rns ic) is similar except that it has a list of
+--   reactions instead of a list of ODEs
 data Rxns a b = Rxns (Species a) (Species b) [Reaction] [Double]
 
 -- | Creates a human-readable string describing the input species
