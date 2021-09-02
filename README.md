@@ -2,13 +2,13 @@
 
 ![CI Workflow Badge](https://github.com/digMP/haskell-reactamole/actions/workflows/main.yml/badge.svg)
 
-Reactamole is an domain-specific language for molecular programming that
+Reactamole is a domain-specific language for molecular programming that
 utilizes reactive functional programming principles. Reactamole observes a
 direct correspondence between signal functions in a reactive functional program
 (FRP) and chemical reaction networks (CRNs) in a molecular program. This
 correspondence allows us to directly translate the core combinators of
 (arrowized) FRP to CRNs. Because Reactamole is embedded in the Haskell
-programming language, it taking advantage of Haskell's rich type system to
+programming language, takes advantage of Haskell's rich type system to
 ensure the well-formedness of the resulting chemical reaction networks.
 
 ## Installation
@@ -92,6 +92,12 @@ INITIAL CONDITIONS:
 ## Publication
 
 Titus H. Klinge, James I. Lathrop, Peter-Michael Osera, and Allison Rogers.
+<<<<<<< HEAD
 Reactamole: Functional Reactive Molecular Programming. 26th International
 Confernece on DNA Computing and Molecular Programming (DNA '26). September,
 2020, Oxford, UK.
+=======
+Reactamole: Functional Reactive Molecular Programming. 27th International
+Conference on DNA Computing and Molecular Programming (DNA '27). September,
+2020, Oxford, UK. DOI:10.4230/LIPIcs.CVIT.2016.23.
+>>>>>>> 311d1a3fe028b9747a054e814596165aff4cd8dd
