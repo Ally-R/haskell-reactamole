@@ -1,11 +1,7 @@
 -- |
 -- Module      :  Bio.Reactamole.Matlab
--- Copyright   :  (c) TBD
--- License     :  TBD
---
--- Maintainer  :  TBD
--- Stability   :  TBD
--- Portability :  TBD
+-- Copyright   :  (c) DigMP Research Group 2021
+-- License     :  MIT
 --
 -- Backend to simulate CRNs outputted from Reactamole in MATLAB.
 
