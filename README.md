@@ -92,12 +92,6 @@ INITIAL CONDITIONS:
 ## Publication
 
 Titus H. Klinge, James I. Lathrop, Peter-Michael Osera, and Allison Rogers.
-<<<<<<< HEAD
-Reactamole: Functional Reactive Molecular Programming. 26th International
-Confernece on DNA Computing and Molecular Programming (DNA '26). September,
-2020, Oxford, UK.
-=======
 Reactamole: Functional Reactive Molecular Programming. 27th International
 Conference on DNA Computing and Molecular Programming (DNA '27). September,
-2020, Oxford, UK. DOI:10.4230/LIPIcs.CVIT.2016.23.
->>>>>>> 311d1a3fe028b9747a054e814596165aff4cd8dd
+2020, Oxford, UK.
