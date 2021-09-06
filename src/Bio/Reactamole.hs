@@ -27,6 +27,8 @@ module Bio.Reactamole
     -- | A collection of useful functions for cleaning up, printing, and
     -- converting between ODEs and CRNs.
   , module Bio.Reactamole.Export
+
+  , module Bio.Reactamole.Matlab
   ) where
 
 import Bio.Reactamole.Core
@@ -34,3 +36,4 @@ import Bio.Reactamole.Bool
 import Bio.Reactamole.Arr
 import Bio.Reactamole.Real
 import Bio.Reactamole.Export
+import Bio.Reactamole.Matlab
