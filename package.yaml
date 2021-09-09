@@ -24,6 +24,7 @@ library:
     - Bio.Reactamole.Arr
     - Bio.Reactamole.Real
     - Bio.Reactamole.Matlab
+    - Bio.Reactamole.Examples
     - Bio.Reactamole.Export
     - Bio.Reactamole.ArrChoice
   dependencies:
