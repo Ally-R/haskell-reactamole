@@ -139,7 +139,7 @@ instRl = CRN $ \(Sg (RealS eq) sys ic) ->
              eq'   = [Term 1 [x], Term (-1) [x']]
              eqdt  = derivativeOfEq sys eq
              dxdt  = filter (\(Term c _) -> c > 0) eqdt
-             dx'dt = filter (\(Term c _) -> c < 0) eqdt
+             dx'dt = negateEq (filter (\(Term c _) -> c < 0) eqdt)
              sys'  = if null dxdt && null dx'dt
                       then sys ++ [dxdt, dx'dt]
                       else sys ++ [dxdt  ++ [Term (-1) [x, x']],
@@ -149,6 +149,7 @@ instRl = CRN $ \(Sg (RealS eq) sys ic) ->
              x'0   = if res < 0 then -res else 0
              ic'   = ic ++ [x0, x'0]
           in Sg (RealS eq') sys' ic'
+  where negateEq eq = multEq [Term (-1) []] eq
 
 -- | Instantiate 'Tup3S' species.
 instTup3 :: CRN (a,b,c) (a,b,c)

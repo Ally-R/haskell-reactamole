@@ -14,6 +14,8 @@ module Bio.Reactamole.Matlab
   , saveSignalAll
   , calculateSignalTable
   , spStr
+  , displayCRN
+  , displayCRNAll
 
   --, sysStr
   --, sysToDecl
@@ -32,6 +34,7 @@ module Bio.Reactamole.Matlab
   where
 
 import Bio.Reactamole.Core
+import Bio.Reactamole.Arr
 
 import Data.List (intercalate)
 import qualified Data.Text as T
@@ -164,3 +167,20 @@ calculateSignalTable t sg = do
   let txt = T.strip (T.pack str)
       ls = T.splitOn (T.pack "\n") txt
   pure $ [ map (\w -> read (T.unpack w) :: Double) l | l <- map T.words ls ]
+
+--------------------------------------------------------------------------------
+
+-- | Instantiates the output signal of the CRN by giving it a default (empty)
+--   input signal
+defaultSignal :: HasDefault a => CRN a b -> Signal b
+defaultSignal f = runCRN (f >>> instCRN >>> reduceCRN) s
+  where s = runCRN instCRN (Sg getDefault [] [])
+
+-- | 'displaySingal t f' displays CRN 'f' over 't' time steps in Matlab.
+displayCRN :: HasDefault a => Double -> CRN a b -> IO ()
+displayCRN d f = displaySignal d (defaultSignal f)
+
+-- | 'displaySingalAll t f' displays all the species found of CRN 'f' over
+--   't' time steps in Matlab.
+displayCRNAll :: HasDefault a => Double -> CRN a b -> IO ()
+displayCRNAll d f = displaySignalAll d (defaultSignal f)

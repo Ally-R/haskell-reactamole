@@ -94,4 +94,4 @@ INITIAL CONDITIONS:
 Titus H. Klinge, James I. Lathrop, Peter-Michael Osera, and Allison Rogers.
 Reactamole: Functional Reactive Molecular Programming. 27th International
 Conference on DNA Computing and Molecular Programming (DNA '27). September,
-2020, Oxford, UK. DOI:10.4230/LIPIcs.CVIT.2016.23.
+2020, Oxford, UK.

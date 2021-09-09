@@ -57,9 +57,8 @@ bandPass a b c = loop (first (constMult a)
 
 -- | Generate a sine wave with the given frequency.
 carrier :: Double -> CRN a Double
-carrier w = loop (proj2 >>> constMult w >>> integrate 1
-        >>> constMult (-w) >>> integrate 0
-        >>> dupCRN)
+carrier w = loop (proj2 >>> constMult (-w) >>> integrate 1
+        >>> constMult w >>> integrate 0 >>> dupCRN)
 
 -- | Produce a pair @m(t)@ that satisfies
 -- \( \frac{dm}{dt} = u(t)\cdot\sin(ft) - m(t) \).
@@ -70,7 +69,7 @@ modulate w = loop (first (idCRN &&& carrier w >>> multCRN)
 -- | Demodulate a signal that has been modulated on a carrier signal at
 -- frequency @w@.
 demodulate :: Double -> Double -> CRN Double Double
-demodulate w q = bandPass (w/q) (w/q) (w*w) >>> rectify >>> lowPass w w
+demodulate w q = bandPass (w/q) (w/q) (w*w) >>> rectify >>> lowPass (w/10) (w/10)
 
 -- | Rectifies a signal so that only the positive part goes through
 rectify :: CRN Double Double
