@@ -173,7 +173,7 @@ calculateSignalTable t sg = do
 -- | Instantiates the output signal of the CRN by giving it a default (empty)
 --   input signal
 defaultSignal :: HasDefault a => CRN a b -> Signal b
-defaultSignal f = runCRN (f >>> instCRN >>> reduceCRN) s
+defaultSignal f = runCRN (f >>> instCRN >>> reduceCRN []) s
   where s = runCRN instCRN (Sg getDefault [] [])
 
 -- | 'displaySingal t f' displays CRN 'f' over 't' time steps in Matlab.

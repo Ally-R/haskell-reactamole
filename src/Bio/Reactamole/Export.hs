@@ -73,7 +73,7 @@ instance Show (Rxns a b) where
 toIVP :: HasDefault a => CRN a b -> IVP a b
 toIVP f = IVP inSp outSp (map normalizeEq sys) ic
   where s@(Sg inSp _ _) = runCRN instCRN (Sg getDefault [] [])
-        f' = f >>> instCRN >>> reduceCRN
+        f' = f >>> instCRN >>> reduceCRN (varsSp inSp)
         Sg outSp sys ic = runCRN f' s
 
 -- | Given a term in the ODE of a species x, returns the associated reaction

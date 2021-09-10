@@ -411,13 +411,13 @@ normalizeEq = filter notZero . combineTerms . sort . map sortVars
 --
 -- This is accomplished by finding the smallest "closed sub-CRN" in the
 -- signal that encapsulates all of the variables in the output.
-reduceCRN :: CRN a a
-reduceCRN = CRN $ \s@(Sg sp sys _) ->
+reduceCRN :: [Variable] -> CRN a a
+reduceCRN reserved = CRN $ \s@(Sg sp sys _) ->
   let n = length sys
       deps = map (\i -> varsEq (sys !! i)) [0..n-1]
       f vs = let vs' = sort . nub $ concat (vs : [ deps !! v | v <- vs])
              in if vs == vs' then vs else f vs'
-      used = f (sort $ varsSp sp)
+      used = f (sort . nub $ varsSp sp ++ reserved)
       notUsed = filter (not . (`elem` used)) [0..n-1]
   in dropVars s notUsed
 
